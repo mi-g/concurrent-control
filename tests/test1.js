@@ -4,8 +4,8 @@ const controller = cc();
 
 function Test(value) {
   console.info("Test",value,"enters");
-  return new Promise((resolve,reject)=>{
-    setTimeout(()=>{
+  return new Promise(function(resolve,reject) {
+    setTimeout(function() {
       console.info("Test",value,"returns");
       resolve();
     },2000);
@@ -13,7 +13,7 @@ function Test(value) {
 }
 
 function TestCaller(value) {
-  controller(()=>{
+  controller(function() {
     return Test(value);
   });
 }

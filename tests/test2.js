@@ -4,30 +4,36 @@ const controller = cc();
 
 function CallCode(param) {
 	console.info("CallCode",param);
-	controller(()=>{
+	return controller(function() {
 	  console.info("Code",param,"starting");
 	  return CodeThatTakes3SecondsToResolve()
-		.then(()=>{
-		  console.info("Code",param,"done");
+		.then(function() {
+		  console.info("Code",param,"executed");
 		});
-	},(abort)=>{
-	  console.info("Got abort handler for",param);
-	  setTimeout(()=>{
+	},function(resolve,reject) {
+	  console.info("Got unqueue handlers for",param);
+	  setTimeout(function() {
 		console.info("Aborting",param);
-		abort();
+		reject();
 	  },5000);
 	})
 }
 
 function CodeThatTakes3SecondsToResolve() {
-	return new Promise((resolve, reject) => {
+	return new Promise(function(resolve, reject) {
 		setTimeout(resolve,3000);
 	});
 }
 
 console.info("=== Test2 ==================");
 
-CallCode(1);
-CallCode(2);
-CallCode(3);
-
+for(var i=1; i<=3; i++)
+	(function(index) {
+		CallCode(index)
+			.then(function() {
+				console.info("Call",index,"resolved");
+			})
+			.catch(function(err) {
+				console.info("Call",index,"rejected");
+			})
+	})(i);
