@@ -10,38 +10,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-class Concurrent {
-	constructor(maxFn=1) {
-		this.maxFn = maxFn;
-		this.pendings = [];
-		this.count = 0;
-	}
-	getMax() {
+function Concurrent(maxFn) {
+	if(typeof maxFn === "undefined")
+		maxFn = 1;
+	this.maxFn = maxFn;
+	this.pendings = [];
+	this.count = 0;
+}
+
+Concurrent.prototype = {
+	getMax: function() {
 		return Promise.resolve(typeof this.maxFn=="function" ? this.maxFn() : this.maxFn);
-	}
-	callFn() {
+	},
+	callFn: function() {
 		var self = this;
-		return (fn,cancelRequest) => {
+		return function(fn,cancelRequest) {
 			return self.getMax()
-				.then((max)=>{
+				.then(function(max) {
 					if(self.count < max)
 						return self.doCall(fn);
 					else {
-						return new Promise((resolve, reject) => {
-							const waitingFn = ()=>{
+						return new Promise(function(resolve, reject) {
+							const waitingFn = function() {
 								return Promise.resolve(fn())
 									.then(resolve)
 									.catch(reject);
 							};
 							self.pendings.push(waitingFn);
 							if(cancelRequest)
-								cancelRequest((result)=>{
+								cancelRequest(function(result) {
 									var index = self.pendings.indexOf(waitingFn);
 									if(index>=0) {
 										self.pendings.splice(index,1);
 										resolve(result);
 									}
-								},(error)=>{
+								},function(error) {
 									var index = self.pendings.indexOf(waitingFn);
 									if(index>=0) {
 										self.pendings.splice(index,1);
@@ -52,27 +55,27 @@ class Concurrent {
 					}
 				});
 		}
-	}
-	attempt() {
+	},
+	attempt: function() {
 		if(this.pendings.length>0) {
 			var self = this;
 			self.getMax()
-				.then((max)=>{
+				.then(function(max) {
 					if(self.count<max)
 						self.doCall(self.pendings.shift());
 				});
 		}
-	}
-	doCall(fn) {
+	},
+	doCall: function(fn) {
 		var self = this;
 		this.count++;
 		return Promise.resolve(fn())
-			.then((result)=>{
+			.then(function(result) {
 				self.count--;
 				self.attempt();
 				return result;
 			})
-			.catch((err)=>{
+			.catch(function(err) {
 				self.count--;
 				self.attempt();
 				throw err;
@@ -80,7 +83,7 @@ class Concurrent {
 	}
 }
 
-module.exports = function(...args) {
-	var concurrent = new Concurrent(...args);
+module.exports = function(maxFn) {
+	var concurrent = new Concurrent(maxFn);
 	return concurrent.callFn().bind(concurrent);
 }
