@@ -1,0 +1,25 @@
+{
+	"name": "concurrent-control",
+	"version": "1.0.0",
+	"description": "Controls the number of simultaneous calls to a promise-returning function",
+	"main": "index.js",
+	"engines": {
+		"node": ">=6.0.0",
+		"npm": ">=3.0.0"
+	},  
+	"license": "MPL-2.0",
+	"author": {
+	  "name": "Michel Gutierrez",
+	  "email": "michel.gutierrez@gmail.com",
+	  "url": "https://github.com/mi-g"
+	},
+	"repository": {
+	  "type": "git",
+	  "url": "https://github.com/mi-g/concurrent-control.git"
+	},
+	"dependencies": {
+	},
+	"scripts": {
+		"tests": "node tests/test1.js; node tests/test2.js"
+	}
+}
