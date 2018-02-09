@@ -113,7 +113,7 @@ Code 2 starting
 Call 1 resolved
 Aborting 2
 Aborting 3
-Call 3 resolved
+Call 3 rejected
 Code 2 executed
 Call 2 resolved
 ```
