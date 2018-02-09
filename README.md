@@ -65,7 +65,7 @@ controller(fn[,unqueueFn])
 
 `fn`: the function to be called in a controlled way
 
-`unqueueFn`: callback function called right after the call has been queued and offers functions as parameters to remove the call from the queue, resulting in resolving or reject the controller _Promise_. Note that if the call has started or is being executed, it cannot be aborted this way.
+`unqueueFn`: callback function called right after the call has been queued and offers functions as parameters to remove the call from the queue, resulting in resolving or rejecting the controller _Promise_. Note that if the call has started or is being executed, it cannot be aborted this way.
 
 Returns a _Promise_ that will either resolve or reject as the result of the code being executed or un-queued.
 
