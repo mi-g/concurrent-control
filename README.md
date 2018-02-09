@@ -60,12 +60,14 @@ moduleFunction([options])
 Returns a function to be called every time the controlled code is to be invoked:
 
 ```javascript
-controller(fn[,abortFn])
+controller(fn[,unqueueFn])
 ```
 
 `fn`: the function to be called in a controlled way
 
-`abortFn`: callback function called right after the call has been queued and offers a function as parameter to remove the call from the queue. Note that if the call has started or is being executed, it cannot be aborted this way.
+`unqueueFn`: callback function called right after the call has been queued and offers functions as parameters to remove the call from the queue, resulting in resolving or reject the controller _Promise_. Note that if the call has started or is being executed, it cannot be aborted this way.
+
+Returns a _Promise_ that will either resolve or reject as the result of the code being executed or un-queued.
 
 Example:
 
@@ -78,17 +80,24 @@ function CallCode(param) {
       .then(()=>{
         console.info("Code",param,"done");
       });
-  },(abort)=>{
-    console.info("Got abort handler for",param);
+  },(resolve,reject)=>{
+    console.info("Got unqueue handlers for",param);
     setTimeout(()=>{
       console.info("Aborting",param);
-      abort();
+      reject(); // resolve() would also un-queue the call
     },5000);
   });
 }
-CallCode(1);
-CallCode(2);
-CallCode(3);
+for(var i=1; i<=3; i++)
+  (function(index) {
+    CallCode(index)
+      .then(function() {
+        console.info("Call",index,"resolved");
+      })
+      .catch(function(err) {
+        console.info("Call",index,"rejected");
+      })
+    })(i);
 ```
 
 produces:
@@ -99,13 +108,16 @@ CallCode 3
 Code 1 starting
 Got abort handler for 2
 Got abort handler for 3
-Code 1 done
+Code 1 executed
 Code 2 starting
+Call 1 resolved
 Aborting 2
 Aborting 3
-Code 2 done
+Call 3 resolved
+Code 2 executed
+Call 2 resolved
 ```
 
-`abortFn` for call `1` is never invoked since the action starts immediately.
-When the abort function for call `2` is triggered, this call has already started so this has no effect.
-Call `3` never starts since it was unqueued before it started executing.
+`unqueueFn` for call `1` is never invoked since the action starts immediately.
+When the un-queue reject function for call `2` is triggered, this call has already started so this has no effect.
+Call `3` never starts since it was un-queued before it started executing.
