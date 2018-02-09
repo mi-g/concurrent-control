@@ -1,6 +1,6 @@
 {
 	"name": "concurrent-control",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Controls the number of simultaneous calls to a promise-returning function",
 	"main": "index.js",
 	"engines": {
@@ -20,6 +20,6 @@
 	"dependencies": {
 	},
 	"scripts": {
-		"tests": "node tests/test1.js; node tests/test2.js"
+		"test": "node tests/test1.js; node tests/test2.js"
 	}
 }
